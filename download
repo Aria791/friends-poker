@@ -1,0 +1,15 @@
+# Dependencies
+node_modules
+
+# Cloudflare / Wrangler
+.wrangler
+.dev.vars
+
+# Env / secrets
+.env
+
+# Logs
+*.log
+
+# Build output
+dist

@@ -1,0 +1,50 @@
+// wrangler.jsonc — Cloudflare Workers 部署配置（Friends Poker）
+//
+// ⚠️ 部署前 CI/CD 注入说明：
+//   database_id 当前是占位符 "__D1_ID__"，真实值由流水线在部署时注入
+//   （来自 `wrangler d1 create friends-poker-d1` 输出的 database_id）。
+//   切勿把真实 id 提交进仓库；本地可用 .dev.vars 或环境变量覆盖。
+//
+// 两层存储：
+//   - D1（DB）：仅 rooms 列表表，建表见 ./migrations/schema.sql，部署后需
+//     `wrangler d1 migrations apply friends-poker-d1 --remote`。
+//   - Durable Object（ROOM，SQLite 存储）：每房间 kv/hand_initial/actions/chat，
+//     运行时 initSchema() 自动建表，因此这里必须用 new_sqlite_classes（见下）。
+{
+  "name": "friends-poker",
+  "main": "src/worker/router.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // D1：建表 SQL 见 ./migrations/schema.sql（rooms 表，可选 actions 表）
+  "migrations_dir": "./migrations",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "friends-poker-d1",
+      "database_id": "__D1_ID__"
+    }
+  ],
+
+  // RoomDurableObject 使用 DO 内置 SQLite 存储（ctx.storage.sql），
+  // 故此处必须是 new_sqlite_classes，不能用 new_classes（后者是经典 KV 存储，
+  // 会导致 ctx.storage.sql 不可用而在运行时崩溃）。
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ROOM",
+        "class_name": "RoomDurableObject"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["RoomDurableObject"]
+    }
+  ],
+
+  "observability": {
+    "enabled": true
+  }
+}
