@@ -1,0 +1,23 @@
+{
+  "name": "friends-poker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "朋友联机德州扑克 - 纯逻辑核心引擎 (core/)，与平台无关、可移植、可测试。",
+  "scripts": {
+    "test": "node --import tsx --test",
+    "test:core": "node --import tsx --test test/core",
+    "test:room": "node --import tsx --test test/room",
+    "typecheck": "tsc --noEmit",
+    "typecheck:worker": "tsc -p tsconfig.worker.json --noEmit",
+    "typecheck:room": "tsc -p tsconfig.roomtest.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@cloudflare/workers-types": "^5.20260922.1"
+  }
+}
